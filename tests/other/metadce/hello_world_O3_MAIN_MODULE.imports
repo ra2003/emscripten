@@ -1,3 +1,4 @@
+GOT.mem.__heap_base
 env._Unwind_GetIP
 env._Unwind_GetLanguageSpecificData
 env._Unwind_GetRegionStart
@@ -120,7 +121,6 @@ env.emscripten_stack_get_end
 env.execve
 env.exit
 env.fork
-env.g$__heap_base
 env.getnameinfo
 env.gmtime_r
 env.inet_addr

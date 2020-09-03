@@ -128,7 +128,6 @@ fd_seek
 fd_sync
 fd_write
 fork
-g$__heap_base
 getTempRet0
 getnameinfo
 gmtime_r

@@ -6581,7 +6581,7 @@ int main() {
 
     if expected_size is not None:
       # measure the wasm size without the name section
-      self.run_process([wasm_opt, wasm_output, '--strip-debug', '-o', 'nodebug.wasm'])
+      self.run_process([wasm_opt, wasm_output, '--strip-debug', '--all-features', '-o', 'nodebug.wasm'])
       wasm_size = os.path.getsize('nodebug.wasm')
       ratio = abs(wasm_size - expected_size) / float(expected_size)
       print('  seen wasm size: %d (expected: %d), ratio to expected: %f' % (wasm_size, expected_size, ratio))
@@ -6663,7 +6663,7 @@ int main() {
           (['-Os', '-s', 'EXPORTED_FUNCTIONS=[]'],    [], [],     43), # noqa
     # we don't metadce with linkable code! other modules may want stuff
     'main_module': (['-O3', '-s', 'MAIN_MODULE=1'], [], [],  520881), # noqa
-    'main_module_2': (['-O3', '-s', 'MAIN_MODULE=2'], [], [],  10309), # noqa
+    'main_module_2': (['-O3', '-s', 'MAIN_MODULE=2'], [], [],  10297), # noqa
   })
   def test_metadce_hello(self, *args):
     self.run_metadce_test('hello_world.c', *args)

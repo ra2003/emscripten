@@ -524,6 +524,7 @@ def lld_flags_for_executable(external_symbol_list):
       cmd.append('-shared')
     else:
       cmd.append('-pie')
+      cmd.append('-Bsymbolic')
 
   if not Settings.SIDE_MODULE:
     cmd += [
@@ -1513,6 +1514,9 @@ def get_binaryen_feature_flags():
   ret = ['--mvp-features']
   if Settings.USE_PTHREADS:
     ret += ['--enable-threads']
+  # Only needed until https://reviews.llvm.org/D87537
+  if Settings.RELOCATABLE:
+    ret += ['--enable-mutable-globals']
   ret += Settings.BINARYEN_FEATURES
   return ret
 

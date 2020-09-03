@@ -3353,7 +3353,7 @@ ok
     self.build_dlfcn_lib('liblib.c')
 
     self.prep_dlfcn_main()
-    src = r'''
+    create_test_file('main.c', r'''
       #include <assert.h>
       #include <stdio.h>
       #include <dlfcn.h>
@@ -3381,9 +3381,9 @@ ok
 
         return 0;
       }
-      '''
+      ''')
     self.set_setting('EXPORTED_FUNCTIONS', ['_main', '_malloc', '_free'])
-    self.do_run(src, '''go!
+    self.do_runf('main.c', '''go!
 pre 1
 pre 2
 pre 3

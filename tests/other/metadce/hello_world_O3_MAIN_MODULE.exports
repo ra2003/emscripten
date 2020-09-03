@@ -20,7 +20,6 @@ __ashldi3
 __ashlti3
 __ashrdi3
 __ashrti3
-__assign_got_enties
 __atomic_compare_exchange
 __atomic_compare_exchange_1
 __atomic_compare_exchange_16
