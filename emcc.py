@@ -656,6 +656,12 @@ def make_js_executable(script):
     pass # can fail if e.g. writing the executable to /dev/null
 
 
+def do_replace(input_, pattern, replacement):
+  if pattern not in input_:
+    exit_with_error('expected to find pattern in input JS: %s' % pattern)
+  return input_.replace(pattern, replacement)
+
+
 run_via_emxx = False
 
 
@@ -1703,7 +1709,7 @@ There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR P
 
     if shared.Settings.SINGLE_FILE:
       # placeholder strings for JS glue, to be replaced with subresource locations in do_binaryen
-      shared.Settings.WASM_BINARY_FILE = shared.FilenameReplacementStrings.WASM_BINARY_FILE
+      shared.Settings.WASM_BINARY_FILE = '<<< WASM_BINARY_FILE >>>'
     else:
       # set file locations, so that JS glue can find what it needs
       shared.Settings.WASM_BINARY_FILE = shared.JS.escape_for_js_string(os.path.basename(wasm_target))
@@ -2757,31 +2763,32 @@ def do_binaryen(target, options, wasm_target):
       final_js = wasm2js
       # if we only target JS, we don't need the wasm any more
       shared.try_delete(wasm_target)
+      return
 
     save_intermediate('wasm2js')
+
+  if shared.Settings.WASM2C:
+    wasm2c.do_wasm2c(wasm_target)
 
   # emit the final symbols, either in the binary or in a symbol map.
   # this will also remove debug info if we only kept it around in the intermediate invocations.
   # note that if we aren't emitting a binary (like in wasm2js) then we don't
   # have anything to do here.
-  if options.emit_symbol_map and os.path.exists(wasm_target):
+  if options.emit_symbol_map:
     building.handle_final_wasm_symbols(wasm_file=wasm_target, symbols_file=symbols_file, debug_info=debug_info)
     save_intermediate_with_wasm('symbolmap', wasm_target)
 
-  if shared.Settings.DEBUG_LEVEL >= 3 and shared.Settings.SEPARATE_DWARF and os.path.exists(wasm_target):
+  if shared.Settings.DEBUG_LEVEL >= 3 and shared.Settings.SEPARATE_DWARF:
     building.emit_debug_on_side(wasm_target, shared.Settings.SEPARATE_DWARF)
-
-  if shared.Settings.WASM2C:
-    wasm2c.do_wasm2c(wasm_target)
 
   # replace placeholder strings with correct subresource locations
   if final_js and shared.Settings.SINGLE_FILE:
     js = open(final_js).read()
 
-    if '{{{ WASM_BINARY_DATA }}}' in js:
-      js = js.replace('{{{ WASM_BINARY_DATA }}}', base64_encode(open(wasm_target, 'rb').read()))
-
-    js = js.replace(shared.FilenameReplacementStrings.WASM_BINARY_FILE, shared.JS.get_subresource_location(wasm_target))
+    if shared.Settings.MINIMAL_RUNTIME:
+      js = do_replace(js, '{{{ WASM_BINARY_DATA }}}', base64_encode(open(wasm_target, 'rb').read()))
+    else:
+      js = do_replace(js, '<<< WASM_BINARY_FILE >>>', shared.JS.get_subresource_location(wasm_target))
     shared.try_delete(wasm_target)
     with open(final_js, 'w') as f:
       f.write(js)
